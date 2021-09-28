@@ -16,18 +16,18 @@ function handleSignallingData(data) {
 }
 
 function createAndSendAnswer() {
-  peerConn.createAnswer((answer) => {
-    peerConn.setLocalDescription(answer);
-    sendData(
-      {
+  ~peerConn.createAnswer(
+    (answer) => {
+      peerConn.setLocalDescription(answer);
+      sendData({
         type: "send_answer",
         answer: answer,
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
-  });
+      });
+    },
+    (error) => {
+      console.log(error);
+    }
+  );
 }
 
 function sendData(data) {
@@ -38,8 +38,9 @@ function sendData(data) {
 let localStream;
 let peerConn;
 let username;
+
 function joinCall() {
-  username = document.getElementById("user-name-input").value;
+  username = document.getElementById("username-input").value;
 
   document.getElementById("video-call-div").style.display = "inline";
 
@@ -64,9 +65,9 @@ function joinCall() {
         iceServers: [
           {
             urls: [
-              "stun.l.google.com:19302",
-              "stun1.l.google.com:19302",
-              "stun2.l.google.com:19302",
+              "stun:stun.l.google.com:19302",
+              "stun:stun1.l.google.com:19302",
+              "stun:stun2.l.google.com:19302",
             ],
           },
         ],
@@ -98,7 +99,7 @@ function joinCall() {
   );
 }
 
-isAudio = true;
+let isAudio = true;
 function muteAudio() {
   isAudio = !isAudio;
   localStream.getAudioTracks()[0].enabled = isAudio;

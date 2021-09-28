@@ -53,9 +53,9 @@ function startCall() {
         iceServers: [
           {
             urls: [
-              "stun.l.google.com:19302",
-              "stun1.l.google.com:19302",
-              "stun2.l.google.com:19302",
+              "stun:stun.l.google.com:19302",
+              "stun:stun1.l.google.com:19302",
+              "stun:stun2.l.google.com:19302",
             ],
           },
         ],
@@ -70,7 +70,6 @@ function startCall() {
 
       peerConn.onicecandidate = (e) => {
         if (e.candidate == null) return;
-
         sendData({
           type: "store_candidate",
           candidate: e.candidate,
@@ -101,7 +100,7 @@ function createAndSendOffer() {
   );
 }
 
-isAudio = true;
+let isAudio = true;
 function muteAudio() {
   isAudio = !isAudio;
   localStream.getAudioTracks()[0].enabled = isAudio;

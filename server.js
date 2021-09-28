@@ -29,26 +29,23 @@ webSocket.on("request", (req) => {
           conn: connection,
           username: data.username,
         };
+
         users.push(newUser);
         console.log(newUser.username);
         break;
-
       case "store_offer":
         if (user == null) return;
-
         user.offer = data.offer;
         break;
 
       case "store_candidate":
-        if (user == null) return;
-
-        if (user.candidates == null) {
-          user.candidate = [];
+        if (user == null) {
+          return;
         }
+        if (user.candidates == null) user.candidates = [];
 
-        user.candidates.push(data.candidates);
+        user.candidates.push(data.candidate);
         break;
-
       case "send_answer":
         if (user == null) {
           return;
@@ -61,9 +58,60 @@ webSocket.on("request", (req) => {
           },
           user.conn
         );
+        break;
+      case "send_candidate":
+        if (user == null) {
+          return;
+        }
+
+        sendData(
+          {
+            type: "candidate",
+            candidate: data.candidate,
+          },
+          user.conn
+        );
+        break;
+      case "join_call":
+        if (user == null) {
+          return;
+        }
+
+        sendData(
+          {
+            type: "offer",
+            offer: user.offer,
+          },
+          connection
+        );
+
+        user.candidates.forEach((candidate) => {
+          sendData(
+            {
+              type: "candidate",
+              candidate: candidate,
+            },
+            connection
+          );
+        });
+
+        break;
     }
   });
+
+  connection.on("close", (reason, description) => {
+    users.forEach((user) => {
+      if (user.conn == connection) {
+        users.splice(users.indexOf(user), 1);
+        return;
+      }
+    });
+  });
 });
+
+function sendData(data, conn) {
+  conn.send(JSON.stringify(data));
+}
 
 function findUser(username) {
   for (let i = 0; i < users.length; i++) {
